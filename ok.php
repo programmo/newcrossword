@@ -32,7 +32,7 @@ $cols = isset($_GET["cols"]) ? $_GET["cols"]:12 ;;
 <?php for ($r=0;$r<$rows;$r++):?>
 	<?php for($c=0;$c<$cols;$c++):?>
 		<div class='wr_box'>
-			<input class='box' row="<?php echo $r?>" col="<?php echo $c?>" name="<?php echo "$r"."_" ."$c";?>" type="text">
+			<input class='box' row="<?php echo $r?>" bh='0' bv='0' col="<?php echo $c?>" name="<?php echo "$r"."_" ."$c";?>" type="text">
 			<span class='number'></span>
 			<span class='actions'></span>
 		</div>
@@ -42,6 +42,12 @@ $cols = isset($_GET["cols"]) ? $_GET["cols"]:12 ;;
 <?php endfor;?>
 
 </form>
+
+<div id='def'>
+	<form id='fdef'>
+
+	</form>
+</div>
 
 <div class='fixed2'>
 Menu left
@@ -87,13 +93,14 @@ $(document).ready(function(){
 						//horizotal
 						found = 1 ;
 						cbox.parent().find(".number").text(curNumber);
-						
+						cbox.attr("bh",1);
 					}
 					
 					//vertical trial
 					if ( !cboxDown.hasClass("disabled") &&  ( r==0 || cboxUp.hasClass('disabled') )  && r!=(totRows-1)  )
 					{
 						found = 1 ;
+						cbox.attr("bv",1);
 						//vert
 						cbox.parent().find(".number").text(curNumber);
 						
@@ -108,7 +115,44 @@ $(document).ready(function(){
 				}
 			}	
 
+			manDef();
+
 		}
+		function manDef(){
+				$("#fdef input").hide();
+				$(".box[bh=1]").each(function(){
+						var col = ( $(this).attr("col") );
+						var row = ( $(this).attr("row") );
+						var number = $(this).parent().find(".number").text();
+						//console.log(number);
+						var nameInput = "h_" + number  ;
+						console.log(nameInput);
+
+				
+
+			if(	$("#fdef").find("input[name="+ nameInput + "]").length==0 )
+				{
+				$("#fdef").append("<input row='"+row+"' col='" + col+"' type='text' name='" + nameInput +"' />" );
+
+
+
+				}	
+			else
+			{
+				$("#fdef").find("input[name="+ nameInput + "]").attr("col",col);
+				$("#fdef").find("input[name="+ nameInput + "]").attr("row",row);
+
+
+			}
+			$("#fdef").find("input[name="+ nameInput + "]").show();
+
+
+				}
+					);
+			}
+			
+
+		
 
 		$(".wr_box").on("mouseenter",function(){
 			
@@ -125,6 +169,7 @@ $(document).ready(function(){
 		$(".actions").on("click",
 			function(event){
 			$(this).parent().find("input").toggleClass("disabled");
+			$(this).attr("bh",0).attr("bv",0);
 			numberize();
 		} );
 
@@ -134,6 +179,13 @@ $(document).ready(function(){
 </script>
 
 <style>
+ #def{
+ 	float:right;
+ 	position: fixed;
+ 	right: 0px;
+ 	top:10px;
+ 	max-width: 200px;
+ }
  #crossword{
  	text-align: center;
  }
@@ -153,6 +205,10 @@ $(document).ready(function(){
  #crossword .box:hover +.actions{
  	visibility: visible;
  }*/
+
+ .cus-disabled{
+ 	background-color:red;
+ }
 
  .disabled{
  	background-color:black;
