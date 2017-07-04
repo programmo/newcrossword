@@ -6,6 +6,7 @@
 	<meta name="mobile-web-app-capable" content="yes">
 
 	<script src='jquery/dist/jquery.min.js'></script>
+	<script type="text/javascript" src="bower_components/spectrum/spectrum.js"></script>
 </head>
 <body>
 
@@ -57,6 +58,16 @@ Menu left
 Ciao IFIv
 
 
+</div>
+
+
+<div id='s_colors'>
+<form method="get">
+    <input type='color' name='color' />
+    <input type='color' name='color2' value='#3355cc' />
+    <input type='color' name='color3' value='#000000' />
+    <input type="submit" />
+</form>
 </div>
 <script>
 	
@@ -213,6 +224,11 @@ $(document).ready(function(){
  .disabled{
  	background-color:black;
  }
+
+.ov-disabled{
+	
+}
+
  #crossword .actions{
  	visibility: hidden;
  	width: 10px;
