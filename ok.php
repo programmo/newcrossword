@@ -87,15 +87,21 @@
 	<script>
 		var modality = 'h';
 		let arrVert = [];
+		let arrHoriz = [];
+
+
+
 		$(document).ready(function() {
 
-
 			$("body").on("focusout", ".vInput", function() {
-				$("#crossword input").removeClass("selVert");
+				//$("#crossword input").removeClass("selVert");
+				$(".wr_box input").removeClass ("selHoriz selVert");
 			});
 
-			$("body").on("focus", ".vInput", function() {
-				$("#crossword input").removeClass("selVert");
+			$("body").on("focus", "#vfdef .vInput"   ,   function() 
+			{
+
+				$(".wr_box input").removeClass ("selHoriz selVert");
 				let coord = $(this).attr("data-value");
 				//Get value 
 				console.log(coord);
@@ -104,28 +110,42 @@
 				let end = parseInt(arrCoord[2]);
 
 				let column = parseInt(arrCoord[1]);
-
-
-
-
-				for (indexRow = start; indexRow <= end; indexRow++) {
+				for (indexRow = start; indexRow <= end; indexRow++) 
+				{
 					console.log("Ind Rows" + indexRow + "Col:" + column);
 					var cboxNow = $(".box[row=" + indexRow + "][col=" + column + "]").addClass("selVert");
 				}
-				/* coord.split(",").forEach(function (item) {
-					
-				}); */
-
-
-
 
 			});
+
+
+			$("body").on("focusin", "#fdef input", function(arg) {
+
+				$(".wr_box input").removeClass ("selHoriz selVert");
+				let coord = $(this).attr("data-value");
+				//Get value 
+				console.log(coord);
+				var arrCoord = coord.split(',');
+				let start = parseInt(arrCoord[1]);
+				let end = parseInt(arrCoord[3]);
+
+				let row = parseInt(arrCoord[0]);
+				for (indexCol = start; indexCol <= end; indexCol++) 
+				{
+					console.log("Ind Rows" + row + "Col:" + indexCol);
+					var cboxNow = $(".box[row=" + row + "][col=" + indexCol + "]").addClass("selVert");
+				}
+			});
+
+
+
 
 			function numberize() {
 				var crow = 0;
 				var totCols = $(".box[row=0]").length;
 				var totRows = $(".box[col=0]").length;
 				var curNumber = 1;
+				arrHoriz = [] ;
 
 				//reset
 				$(".number").text("");
@@ -146,10 +166,39 @@
 
 						//console.log(cboxLeft.text());
 						if (!cboxRight.hasClass("disabled") && (c == 0 || cboxLeft.hasClass('disabled')) && c != (totCols - 1)) {
+
+							//console.log ( "Current number :" + curNumber  ) ;
 							//horizotal
-							found = 1;
-							cbox.parent().find(".number").text(curNumber);
-							cbox.attr("bh", 1);
+							if (curNumber > 0)
+							{
+								found = 1;
+								cbox.parent().find(".number").text(curNumber);
+								cbox.attr("bh", 1);
+								first = [ r , c  ] ;
+
+								//Find end from here till right
+								for (let indexCol = c; indexCol < totCols; indexCol++) {
+									let now = [r, indexCol];
+									var cboxNow = $(".box[row=" + now[0] + "][col=" + (now[1]) + "]");
+									if ($(cboxNow).hasClass("disabled") || indexCol == (totCols - 1)) {
+										if (now[1] > 0) {
+											if (indexCol == (totCols - 1))
+												end = [now[0], now[1]];
+											else
+												end = [now[0] , now[1] - 1 ];
+											if (first[1] != end[1])
+												arrHoriz[ parseInt(curNumber)] = [first, end];
+											//	console.log(curNumber);
+											//	arrHoriz.push(  { ["": curNumber] : {"first":first,"end":end} }  )   ;
+											//return true;
+											break;
+										}
+									}
+								}
+							
+								//arrHoriz.push( { curNumber :  [ r , c  ]}   );
+							}
+
 						}
 
 						//vertical trial
@@ -159,8 +208,6 @@
 							//vert
 							cbox.parent().find(".number").text(curNumber);
 
-
-
 						}
 						if (found == 1) {
 							curNumber++;
@@ -168,8 +215,11 @@
 						//$(cbox).css("background-color","red");
 					}
 				}
+				//console.log ( arrHoriz );
+				//console.log (arrHoriz);
+			//	manDef();
 
-				manDef();
+				horizDef();
 				vertDef();
 
 			}
@@ -177,7 +227,37 @@
 			function blink(cel) {
 
 			}
+			function horizDef() {
 
+				let arrInput = [] ;
+
+				$("#fdef input").each( function (index, inp) {
+					let number =   $(inp).attr("data-number")	;
+					let value =   $(inp).attr("data-value") 	;
+					let text = $(inp).text();
+					arrInput[number] = text ;
+
+				}  );
+
+				$("#fdef input").remove();
+
+				$(arrHoriz).each(function(index, obj) {
+				if ( obj != undefined )
+				{
+
+				//	console.log (obj);
+					$("#fdef").append("<input placeholder='" + index + "' data-number='" + index + "' class='vInput ' type='text' data-value='" + obj[0][0] + "," + obj[0][1] + "," + obj[1][0] + "," + obj[1][1] + "'>");
+
+				}
+				});
+
+				tinysort('#fdef>input', {
+					selector: 'input',
+					attr: 'data-number'
+				});
+
+
+			}
 			function vertDef() {
 				arrVert = [];
 				var totCols = $(".box[row=0]").length;
@@ -279,16 +359,17 @@
 					//	console.log(nameInput);
 
 
+					if (number>0)
+					{
+						if ($("#fdef").find("input[name=" + nameInput + "]").length == 0) {
+							$("#fdef").append("<input placeholder='" +  number + "' row='" + row + "' col='" + col + "' type='text' name='" + nameInput + "' />");
+						} else {
+							$("#fdef").find("input[name=" + nameInput + "]").attr("col", col);
+							$("#fdef").find("input[name=" + nameInput + "]").attr("row", row);
+						}
 
-					if ($("#fdef").find("input[name=" + nameInput + "]").length == 0) {
-						$("#fdef").append("<input row='" + row + "' col='" + col + "' type='text' name='" + nameInput + "' />");
-					} else {
-						$("#fdef").find("input[name=" + nameInput + "]").attr("col", col);
-						$("#fdef").find("input[name=" + nameInput + "]").attr("row", row);
+						$("#fdef").find("input[name=" + nameInput + "]").show();
 					}
-
-					$("#fdef").find("input[name=" + nameInput + "]").show();
-
 
 				});
 
@@ -303,7 +384,9 @@
 
 			$(".wr_box .box").on("keyup", function(event) {
 				this.value = "";
-				$(this).parent().addClass("horiz");
+				//$(this).parent().addClass("horiz");
+				
+
 
 				event.preventDefault();
 				this.value = String.fromCharCode(event.which);
@@ -315,7 +398,7 @@
 					if ($(this).find(".disabled").length > 0) return false;
 					if ($(this).hasClass("nl") || $(this).find(".disabled").length > 0) return false;;
 
-					$(val).addClass("horiz");
+				//	$(val).addClass("horiz");
 				});
 				//.find("input").css("background-color","red");
 
@@ -342,20 +425,19 @@
 					numberize();
 				});
 
-			$("body").on("focusin", "#fdef input", function(arg) {
-				var row = $(this).attr("row");
-				var col = $(this).attr("col");
+				$("body").on("focusin", ".box", function(arg) {
 
-				$(".wr_box").find("[row='" + row + "'][col='" + col + "']").focus();
-				console.log(col);
+					$(".wr_box input").removeClass ("selHoriz selVert");
 
-			});
-
-
+				});
 		});
 	</script>
 
 	<style>
+		.selHoriz {
+			background-color: #add9e4;
+		}
+
 		.maincont{
 			display: flex;
 		width: 100%;
@@ -411,6 +493,7 @@
 
 		#crossword {
 			text-align: center;
+			margin-right:3px;
 		}
 
 		#crossword .wr_box {
@@ -515,6 +598,14 @@
 				opacity: 1;
 			}
 		}
+
+		.wr_box input {
+/*     padding:2px;
+    width:100%;
+    margin:0 -1px 0 -4px;
+    float:left;
+    clear:both */
+}
 	</style>
 </body>
 
