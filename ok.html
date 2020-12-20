@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<!-- This page of sample code is intended to demonstrate how to use the JSON puzzle format described at www.xwordinfo.com.
+It can be freely used but please credit Jim Horne and xwordinfo.com and let me know if you end up using it.
+Email info {at} xwordinfo.com  -->
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>JSON Sample 1</title>
+    <style>
+        body { font-family:Tahoma, Helvetica, Sans-Serif; background-color:#f6f6f6; font-size:14px; }
+        h2 { color:#00008B; }
+        a { color:#0c519f; text-decoration:none; }
+        a:hover { color:#cc0000; text-decoration:underline; }
+        .links { margin-bottom:20px; font-size:12px; }
+        .links a { margin-left: 4px; margin-right: 4px; }
+        #puzNotepad { background-color: #ffffe0; max-width:800px; padding:4px; border:1px solid #808080; margin-bottom:8px; display:none; }
+        #puzTable { border-collapse:collapse; border-spacing: 0; }
+        #puzTable td { width:26px; padding: 0; text-align:center; font-size:12px; border:1px solid #000000; background-color:White; }
+        #puzTable .black { background-color:Black; }
+        #puzTable .circle { background-color:yellow; }
+        #puzTable .shade { background-color: lightgray; }
+        .grid { font-size:8px; text-align:left; padding-left:1px; height:9px}
+        .letter { height:17px; vertical-align:baseline; font-weight:bold; }
+        .copy {  font-size:11px; color:#303030; font-style:italic; margin-top:2px; }
+        .clue { float:left; background-color:#ffffff; padding: 8px; border: 1px solid #00008B; margin: 20px 20px 20px 0; max-width:380px; font-size:12px; visibility:hidden; }
+        .cluehead { font-size:18px; background-color: #87CEFA; font-weight:bold; padding:4px; margin-bottom: 20px; border:1px solid #808080; text-align:center; letter-spacing:2px; }
+    </style>
+    <script>
+
+        //
+        // SAMPLE SCRIPT WITH NO jQuery
+        //
+
+
+        // getXOb returns an appropriate XMLHttp object for AJAX call
+
+        function getXOb() {
+            "use strict";
+
+            var x;
+
+            if (window.XMLHttpRequest) { // Mozilla, Safari,...
+                x = new XMLHttpRequest();
+                if (x.overrideMimeType) {
+                    x.overrideMimeType("text/xml");
+                }
+            } else if (window.ActiveXObject) { // IE
+                try {
+                    x = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    x = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+            }
+            return x;
+        }
+
+
+        // This function takes the puzzle object returned from the AJAX call and displays a grid and clues.
+        // The HTML table exists ahead of time but rows and cells are created on the fly.
+
+        function showPuzzle(puzzle) {
+            "use strict";
+
+            document.getElementById("puzTitle").innerHTML = puzzle.title;
+            document.getElementById("puzAuthor").innerHTML = "by " + puzzle.author;
+            document.getElementById("puzCopy").innerHTML = "&copy; " + puzzle.copyright;
+
+            var pt = document.getElementById("puzTable");
+            var n = 0;
+            var i = 0;
+            var row, thisrow, col, cell, grid, val;
+
+            for (row = 0; row < puzzle.size.rows; row += 1) {
+                thisrow = pt.insertRow(row);
+                for (col = 0; col < puzzle.size.cols; col += 1) {
+                    cell = thisrow.insertCell(col);
+                    grid = puzzle.gridnums[n];
+
+                    if (grid === 0) {                     // 0 means no grid number at this location
+                        grid = " ";
+                    }
+
+                    val = puzzle.grid[n];
+
+                    if (val === ".") {
+                        cell.className = "black";
+                    }
+                    else {
+                        cell.innerHTML = "<div class='grid'>" + grid + "</div>" + "<div class='letter'>" + val + "</div>";
+                        if (puzzle.circles && puzzle.circles[n] === 1) {
+                            cell.className = puzzle.shadecircles ? "shade" : "circle";
+                        }
+                    }
+
+                    n += 1;
+                }
+            }
+
+            if (puzzle.notepad) {
+                var notepad = document.getElementById("puzNotepad");
+                notepad.innerHTML = "<b>Notepad:</b> " + puzzle.notepad;
+                notepad.style.display = "block";
+
+                var w = pt.clientWidth;
+                notepad.style.width = (w - 10) + "px";
+            }
+
+            document.getElementById("clue1").style.visibility = "visible";
+            var across = document.getElementById("across");
+            for (i in puzzle.clues.across) {
+                across.innerHTML += (puzzle.clues.across[i] + "<br />");
+            }
+
+            document.getElementById("clue2").style.visibility = "visible";
+            var down = document.getElementById("down");
+            for (i in puzzle.clues.down) {
+                down.innerHTML += (puzzle.clues.down[i] + "<br />");
+            }
+        }
+
+
+        // This function makes the AJAX call, waits for the response, turns it into a puzzle object and calls showPuzzle()
+
+        function loadPuzzle(target) {
+            "use strict";
+
+            // clear out old puzzle and clues
+
+            var n = document.getElementById("puzTable").rows.length;
+            while (n > 0) {
+                document.getElementById("puzTable").deleteRow(--n);
+            }
+
+            document.getElementById("puzAuthor").innerHTML = "";
+            document.getElementById("puzNotepad").style.display = "none";
+            document.getElementById("puzCopy").innerHTML = "";
+            document.getElementById("across").innerHTML = "";
+            document.getElementById("down").innerHTML = "";
+            document.getElementById("clue1").style.visibility = "hidden";
+            document.getElementById("clue2").style.visibility = "hidden";
+
+            document.getElementById("puzTitle").innerHTML = "Fetching data...";
+            var xob = getXOb();
+            xob.open("GET", "01.json?date=" + target, true);  // asynch call to JSON server
+            xob.onreadystatechange = function () {
+                if (xob.readyState === 4) {                     // if asynch call has returned object
+                    var json = xob.responseText;
+                    var puzzle = JSON.parse(json);
+                    showPuzzle(puzzle);
+                }
+            };
+            xob.send(null);
+        }
+    </script>
+</head>
+
+<body>
+    <div class="links"><a href="/">XWord Info home</a> |
+    <a href=".">JSON home</a> |
+    <a href="Sample2">Sample 2: JSONP with jQuery</a> |
+    <a href="Sample3">Sample 3: add a grid to any blog or web page</a></div>
+
+    <h1>JSON Sample 1</h1>
+    <h2>Sample code for using JSON to load and display a crossword puzzle</h2>
+    <p style="max-width:800px">This sample page makes an AJAX call to 
+        <a href="https://www.xwordinfo.com/JSON/Data.aspx">https://www.xwordinfo.com/JSON/Data.aspx</a>
+        to get the data for the most recent NYT puzzle in 
+        JSON format. It should work on any modern 
+        browser. View Source to see the code. Click a button to make the call.</p>
+    <p style="max-width:800px">An implementation of this code on your site would require additional 
+        work on your side since cross-domain AJAX calls are prohibited for security reasons.
+        In particular, this might mean writing proxy code on your server.</p>
+    <p style="max-width:800px">Or see <a href="Sample2">Sample 2</a> for a
+        completely self-contained jQuery version that can run from any domain with zero server code.</p>
+    <button id="recent" onclick="loadPuzzle('current')">Current Puzzle</button> &nbsp;
+    <button id="random" onclick="loadPuzzle('random')">Random Puzzle</button>
+
+    <h2 id="puzTitle"></h2>
+    <p id="puzAuthor"></p>
+    <div id="puzNotepad"></div>
+    <table id="puzTable"></table>
+    <div id="puzCopy" class="copy"></div>
+    <div class="clue" id="clue1"><div class="cluehead">Across</div><div id="across"></div></div>
+    <div class="clue" id="clue2"><div class="cluehead">Down</div><div id="down"></div></div>
+    <br style="clear:both" />
+</body>
+</html>

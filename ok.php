@@ -10,72 +10,333 @@
 	<script type="text/javascript" src="bower_components/spectrum/spectrum.js"></script>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/tinysort/3.2.5/tinysort.min.js"></script>
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/style2.css">
 
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	
+	<!--Import Google Icon Font-->
+	<!-- 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+
+	<!--Import materialize.css-->
+	<link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
+
+
+	<script src="js/easytimer.min.js"></script>
+	<style data-main="1"></style>
 </head>
 
 <body>
-
-
 	<?php
 	$rows = isset($_GET["rows"]) ? $_GET["rows"] : 12;
-	$cols = isset($_GET["cols"]) ? $_GET["cols"] : 12;;
+	$cols = isset($_GET["cols"]) ? $_GET["cols"] : 12;
 	?>
 
-	<form name='inputs'>
-		<label for="rows">Rows</label>
-		<input type="text" id='rows' name='rows'>
+	<script>
+		        function getXOb() {
+            "use strict";
 
-		<label for="cols">Cols</label>
-		<input type="text" id='cols' name='cols'>
-		<input type="submit" value="Send">
-	</form>
+            var x;
+
+            if (window.XMLHttpRequest) { // Mozilla, Safari,...
+                x = new XMLHttpRequest();
+                if (x.overrideMimeType) {
+                    x.overrideMimeType("text/xml");
+                }
+            } else if (window.ActiveXObject) { // IE
+                try {
+                    x = new ActiveXObject("Msxml2.XMLHTTP");
+                } catch (e) {
+                    x = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+            }
+            return x;
+		}
+		
+
+		function loadPuzzle(data) 
+		{
+
+			let $rows = data.rows;
+			let $cols = data.cols;
+			let html = "";
+			for ($r = 0; $r < $rows; $r++) {
+				for ($c = 0; $c < $cols; $c++) {
+					html += `<div class='wr_box'>
+						<input class='box' row="` + $r + `" bh='0' bv='0' col="` + $c + `" name="` + $r + "_" + $c + `" type="text">
+						<span class='number'></span>
+						<span class='actions'></span>
+					</div>`;
+					
+				}
+				html += "<div class='nl'></div>";
+			}
+			//console.log (html);
+			$("#crossword").html(html) ;
+		}
 
 
+
+        function loadPuzzleJson(target) {
+            "use strict";
+
+            // clear out old puzzle and clues
+
+            /* var n = document.getElementById("puzTable").rows.length;
+            while (n > 0) {
+                document.getElementById("puzTable").deleteRow(--n);
+            }
+
+            document.getElementById("puzAuthor").innerHTML = "";
+            document.getElementById("puzNotepad").style.display = "none";
+            document.getElementById("puzCopy").innerHTML = "";
+            document.getElementById("across").innerHTML = "";
+            document.getElementById("down").innerHTML = "";
+            document.getElementById("clue1").style.visibility = "hidden";
+            document.getElementById("clue2").style.visibility = "hidden";
+
+            document.getElementById("puzTitle").innerHTML = "Fetching data..."; */
+            var xob = getXOb();
+            xob.open("GET", "22.json?date=" + target, true);  // asynch call to JSON server
+            xob.onreadystatechange = function () {
+                if (xob.readyState === 4) {                     // if asynch call has returned object
+                    var json = xob.responseText;
+                    var puzzle = JSON.parse(json);
+                    showPuzzleJson(puzzle);
+                }
+            };
+            xob.send(null);
+		}
+
+		function showPuzzleJson(puzzle)
+		{
+			
+			let $rows = puzzle.size.rows ;
+			let $cols = puzzle.size.cols ;
+			let grid = puzzle.grid ;
+			let across = puzzle.clues.across ;
+			let down = puzzle.clues.down ;
+			/* let $rows = data.rows;
+			let $cols = data.cols; */
+			let mCounter= 0 ;
+			let html = "";
+			for ($r = 0; $r < $rows; $r++) {
+				for ($c = 0; $c < $cols; $c++) {
+
+					let clDis = "" ;
+					if ( grid[mCounter]=='.' )
+						clDis = ' disabled '
+					html += `<div class='wr_box'>
+						<input class='box ` + clDis +`' row="` + $r + `" bh='0' bv='0' col="` + $c + `" name="` + $r + "_" + $c + `" type="text">
+						<span class='number'></span>
+						<span class='actions'></span>
+					</div>`;
+					mCounter++;
+				}
+				html += "<div class='nl'></div>";
+			}
+			//console.log (html);
+			$("#crossword").html(html) ;	
+			numberize();	
+			
+			across.forEach(element => 
+			{	
+				let ar = element.split('. ');
+				var num = ar[0];
+				//console.log(ar[1]);
+				$("#fdef input[data-number=" + num + "]").val ( element );
+			});
+			down.forEach(element => 
+			{	
+				let ar = element.split('. ');
+				var num = ar[0];
+				//console.log(ar[1]);
+				$("#vfdef input[data-number=" + num + "]").val (  element );
+			});
+		}
+
+        function showPuzzle(puzzle) {
+            "use strict";
+
+            document.getElementById("puzTitle").innerHTML = puzzle.title;
+            document.getElementById("puzAuthor").innerHTML = "by " + puzzle.author;
+            document.getElementById("puzCopy").innerHTML = "&copy; " + puzzle.copyright;
+
+            var pt = document.getElementById("puzTable");
+            var n = 0;
+            var i = 0;
+            var row, thisrow, col, cell, grid, val;
+
+            for (row = 0; row < puzzle.size.rows; row += 1) {
+                thisrow = pt.insertRow(row);
+                for (col = 0; col < puzzle.size.cols; col += 1) {
+                    cell = thisrow.insertCell(col);
+                    grid = puzzle.gridnums[n];
+
+                    if (grid === 0) {                     // 0 means no grid number at this location
+                        grid = " ";
+                    }
+
+                    val = puzzle.grid[n];
+
+                    if (val === ".") {
+                        cell.className = "black";
+                    }
+                    else {
+                        cell.innerHTML = "<div class='grid'>" + grid + "</div>" + "<div class='letter'>" + val + "</div>";
+                        if (puzzle.circles && puzzle.circles[n] === 1) {
+                            cell.className = puzzle.shadecircles ? "shade" : "circle";
+                        }
+                    }
+
+                    n += 1;
+                }
+            }
+
+            if (puzzle.notepad) {
+                var notepad = document.getElementById("puzNotepad");
+                notepad.innerHTML = "<b>Notepad:</b> " + puzzle.notepad;
+                notepad.style.display = "block";
+
+                var w = pt.clientWidth;
+                notepad.style.width = (w - 10) + "px";
+            }
+
+            document.getElementById("clue1").style.visibility = "visible";
+            var across = document.getElementById("across");
+            for (i in puzzle.clues.across) {
+                across.innerHTML += (puzzle.clues.across[i] + "<br />");
+            }
+
+            document.getElementById("clue2").style.visibility = "visible";
+            var down = document.getElementById("down");
+            for (i in puzzle.clues.down) {
+                down.innerHTML += (puzzle.clues.down[i] + "<br />");
+            }
+        }
+
+
+$(document).ready( function () {
+
+	let cols = <?= $cols ?>;
+		let rows = <?= $rows ?>;
+		let data = {
+			"cols": cols,
+			"rows": rows
+		};
+		//loadPuzzle(data);
+
+		loadPuzzleJson("");
+		var timerInstance = new easytimer.Timer();
+		timerInstance.start();
+		timerInstance.addEventListener('secondsUpdated', function (e) {
+			$('#basicUsage').html(timerInstance.getTimeValues().toString());
+		});
+
+
+
+}  );
+	</script>
+	<style>
+		:root {
+			--blue: #6495ed;
+			--cols: <?= $cols ?>;
+		}
+	</style>
+
+	<div class="row">
+		<form class="col s4" name='inputs'>
+			<div class="input-field col s2">
+				<input placeholder="Rows" min="4" max="77" type="number" id='rows' name='rows'>
+			</div>
+			<div class="input-field col s2">
+				<input type="number" placeholder="Cols" min="4" max="77" id='cols' name='cols'>
+			</div>
+			<div class="input-field col s2">
+				<input class="waves-effect waves-light btn" type="submit" value="Send">
+			</div>
+		</form>
+	</div>
 	<div class="maincont">
-	<form id='crossword' name="boxes">
 
-		<?php for ($r = 0; $r < $rows; $r++) : ?>
-			<?php for ($c = 0; $c < $cols; $c++) : ?>
-				<div class='wr_box'>
-					<input class='box' row="<?php echo $r ?>" bh='0' bv='0' col="<?php echo $c ?>" name="<?php echo "$r" . "_" . "$c"; ?>" type="text">
-					<span class='number'></span>
-					<span class='actions'></span>
-				</div>
+	<div id="toolbar">
+    <button id="new-grid" type="button" data-tooltip="New puzzle" onclick="createNewPuzzle()">
+      <i class="fa fa-plus fa-fw" aria-hidden="true"></i>
+    </button>
+    <button id="open-JSON" type="button" data-tooltip="Open puzzle..." onmouseenter="showMenu(event)" onclick="openPuzzle()">
+      <i class="fa fa-folder-open-o fa-fw" aria-hidden="true"></i>
+    </button>
+    <input id="open-puzzle-input" class="hidden" type="file" accept=".json,.txt,.xw,.puz"/>
+    <div id="export-menu" class="menu hidden" onmouseleave="hideMenu(event)">
+      <h4>Export as:</h4>
+      <button id="export-JSON" class="default" type="button" data-tooltip="Phil puzzle (.xw)" onmouseup="setDefault(event)" onclick="writeFile('xw')">
+        <i class="fa fa-download fa-fw" aria-hidden="true"></i>
+      </button>
+      <button id="export-PUZ" type="button" data-tooltip="Across Lite puzzle (.puz)" onmouseup="setDefault(event)" onclick="writeFile('puz')">
+        <i class="fa fa-download fa-fw" aria-hidden="true"></i>
+      </button>
+      <button id="print-puzzle" type="button" data-tooltip="Printable puzzle (.pdf)" onmouseup="setDefault(event)" onclick="printPDF()">
+        <i class="fa fa-print fa-fw" aria-hidden="true"></i>
+      </button>
+      <button id="print-NYT-submission" type="button" data-tooltip="NYT submission (.pdf)" onmouseup="setDefault(event)" onclick="printPDF('nyt')">
+        <i class="fa fa-newspaper-o fa-fw" aria-hidden="true"></i>
+      </button>
+    </div>
+    <button id="export" type="button" data-tooltip="Save puzzle" onmouseenter="showMenu(event)" onclick="doDefault(event)">
+      <i class="fa fa-download fa-fw" aria-hidden="true"></i>
+    </button>
+    <a id="download-puzzle-link" class="hidden">Download puzzle</a>
 
-			<?php endfor; ?>
-			<?php echo "<div class='nl'></div>"; ?>
-		<?php endfor; ?>
+    <div class="divider"></div>
 
-	</form>
+    <button id="quick-layout" type="button" data-tooltip="Generate pattern" onmouseenter="showMenu(event)" onclick="generatePattern()">
+      <i class="fa fa-delicious fa-fw" aria-hidden="true"></i>
+    </button>
+    <button id="toggle-freeze-layout" type="button" data-tooltip="Freeze pattern" data-state="off" class="disabled">
+      <i class="fa fa-snowflake-o fa-fw" aria-hidden="true"></i>
+    </button>
+    <button id="clear-fill" type="button" data-tooltip="Clear white squares" onclick="clearFill()">
+      <i class="fa fa-eraser fa-fw" aria-hidden="true"></i>
+    </button>
+    <button id="toggle-symmetry" type="button" data-tooltip="Turn off symmetry" data-state="on" class="button-on" onclick="toggleSymmetry()">
+      <i class="fa fa-balance-scale fa-fw" aria-hidden="true"></i>
+    </button>
 
-	<div id='def'>
-		<form id='fdef'>
+    <div class="divider"></div>
+
+    <button id="open-wordlist" type="button" data-tooltip="Change dictionary..." onclick="openWordlist()">
+      <i class="fa fa-book fa-fw" aria-hidden="true"></i>
+    </button>
+    <input id="open-wordlist-input" class="hidden" type="file" accept=".txt"/>
+    <button id="auto-fill" type="button" data-tooltip="Auto-fill puzzle" onclick="autoFill()">
+      <i class="fa fa-magic fa-fw" aria-hidden="true"></i>
+    </button>
+  </div>
+
+	<div id="basicUsage">00:00:00</div>
+		<form id='crossword' name="boxes">
+
+
+
+
+
 
 		</form>
+		<div id='def'>
+			<form id='fdef'>
+			</form>
+		</div>
+		<div id='vdef'>
+			<form id='vfdef'>
+			</form>
+		</div>
 	</div>
-
-
-	<div id='vdef'>
-		<form id='vfdef'>
-
-		</form>
-	</div>
-
-	</div>
-
-
-
 	<div class='fixed2'>
 		Menu left
 	</div>
-
 	<div>
 		Ciao IFIv
-
-
 	</div>
-
-
 	<div id='s_colors'>
 		<form method="get">
 			<input type='color' name='color' />
@@ -84,529 +345,16 @@
 			<input type="submit" />
 		</form>
 	</div>
-	<script>
-		var modality = 'h';
-		let arrVert = [];
-		let arrHoriz = [];
 
+	<script src="js/main.js"></script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.debug.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
+  <script src="js/patterns.js"></script>
+  <script src="js/cross.js"></script>
+  <script src="js/wordlist.js"></script>
+  <script src="js/files.js"></script>
 
-
-		$(document).ready(function() {
-
-			$("body").on("focusout", ".vInput", function() {
-				//$("#crossword input").removeClass("selVert");
-				$(".wr_box input").removeClass ("selHoriz selVert");
-			});
-
-			$("body").on("focus", "#vfdef .vInput"   ,   function() 
-			{
-
-				$(".wr_box input").removeClass ("selHoriz selVert");
-				let coord = $(this).attr("data-value");
-				//Get value 
-				console.log(coord);
-				var arrCoord = coord.split(',');
-				let start = parseInt(arrCoord[0]);
-				let end = parseInt(arrCoord[2]);
-
-				let column = parseInt(arrCoord[1]);
-				for (indexRow = start; indexRow <= end; indexRow++) 
-				{
-					console.log("Ind Rows" + indexRow + "Col:" + column);
-					var cboxNow = $(".box[row=" + indexRow + "][col=" + column + "]").addClass("selVert");
-				}
-
-			});
-
-
-			$("body").on("focusin", "#fdef input", function(arg) {
-
-				$(".wr_box input").removeClass ("selHoriz selVert");
-				let coord = $(this).attr("data-value");
-				//Get value 
-				console.log(coord);
-				var arrCoord = coord.split(',');
-				let start = parseInt(arrCoord[1]);
-				let end = parseInt(arrCoord[3]);
-
-				let row = parseInt(arrCoord[0]);
-				for (indexCol = start; indexCol <= end; indexCol++) 
-				{
-					console.log("Ind Rows" + row + "Col:" + indexCol);
-					var cboxNow = $(".box[row=" + row + "][col=" + indexCol + "]").addClass("selVert");
-				}
-			});
-
-
-
-
-			function numberize() {
-				var crow = 0;
-				var totCols = $(".box[row=0]").length;
-				var totRows = $(".box[col=0]").length;
-				var curNumber = 1;
-				arrHoriz = [] ;
-
-				//reset
-				$(".number").text("");
-				//return false ;
-				for (r = 0; r < totRows; r++) {
-					for (c = 0; c < totCols; c++) {
-
-						var cbox = $(".box[row=" + r + "][col=" + c + "]");
-						var cboxRight = $(".box[row=" + r + "][col=" + (c + 1) + "]");
-						var cboxLeft = $(".box[row=" + r + "][col=" + (c - 1) + "]");
-
-						var cboxDown = $(".box[row=" + (r + 1) + "][col=" + (c) + "]");
-						var cboxUp = $(".box[row=" + (r - 1) + "][col=" + (c) + "]");
-						var found = 0;
-
-						if (cbox.hasClass("disabled"))
-							continue;
-
-						//console.log(cboxLeft.text());
-						if (!cboxRight.hasClass("disabled") && (c == 0 || cboxLeft.hasClass('disabled')) && c != (totCols - 1)) {
-
-							//console.log ( "Current number :" + curNumber  ) ;
-							//horizotal
-							if (curNumber > 0)
-							{
-								found = 1;
-								cbox.parent().find(".number").text(curNumber);
-								cbox.attr("bh", 1);
-								first = [ r , c  ] ;
-
-								//Find end from here till right
-								for (let indexCol = c; indexCol < totCols; indexCol++) {
-									let now = [r, indexCol];
-									var cboxNow = $(".box[row=" + now[0] + "][col=" + (now[1]) + "]");
-									if ($(cboxNow).hasClass("disabled") || indexCol == (totCols - 1)) {
-										if (now[1] > 0) {
-											if (indexCol == (totCols - 1))
-												end = [now[0], now[1]];
-											else
-												end = [now[0] , now[1] - 1 ];
-											if (first[1] != end[1])
-												arrHoriz[ parseInt(curNumber)] = [first, end];
-											//	console.log(curNumber);
-											//	arrHoriz.push(  { ["": curNumber] : {"first":first,"end":end} }  )   ;
-											//return true;
-											break;
-										}
-									}
-								}
-							
-								//arrHoriz.push( { curNumber :  [ r , c  ]}   );
-							}
-
-						}
-
-						//vertical trial
-						if (!cboxDown.hasClass("disabled") && (r == 0 || cboxUp.hasClass('disabled')) && r != (totRows - 1)) {
-							found = 1;
-							cbox.attr("bv", 1);
-							//vert
-							cbox.parent().find(".number").text(curNumber);
-
-						}
-						if (found == 1) {
-							curNumber++;
-						}
-						//$(cbox).css("background-color","red");
-					}
-				}
-				//console.log ( arrHoriz );
-				//console.log (arrHoriz);
-			//	manDef();
-
-				horizDef();
-				vertDef();
-
-			}
-
-			function blink(cel) {
-
-			}
-			function horizDef() {
-
-				let arrInput = [] ;
-
-				$("#fdef input").each( function (index, inp) {
-					let number =   $(inp).attr("data-number")	;
-					let value =   $(inp).attr("data-value") 	;
-					let text = $(inp).text();
-					arrInput[number] = text ;
-
-				}  );
-
-				$("#fdef input").remove();
-
-				$(arrHoriz).each(function(index, obj) {
-				if ( obj != undefined )
-				{
-
-				//	console.log (obj);
-					$("#fdef").append("<input placeholder='" + index + "' data-number='" + index + "' class='vInput ' type='text' data-value='" + obj[0][0] + "," + obj[0][1] + "," + obj[1][0] + "," + obj[1][1] + "'>");
-
-				}
-				});
-
-				tinysort('#fdef>input', {
-					selector: 'input',
-					attr: 'data-number'
-				});
-
-
-			}
-			function vertDef() {
-				arrVert = [];
-				var totCols = $(".box[row=0]").length;
-				var totRows = $(".box[col=0]").length;
-
-
-				$(".number").each(function() {
-					let value = $(this).text();
-					if (value) {
-						//	console.log( "Vak is :" + value );
-						let input = $(this).prev();
-						//$(input).addClass("orange");
-
-
-						var col = ($(input).attr("col"));
-						var row = ($(input).attr("row"));
-
-						let prev = [row - 1, col];
-						var cboxPrev = $(".box[row=" + prev[0] + "][col=" + (prev[1]) + "]");
-
-						let next = [row + 1, col];
-						var cboxNext = $(".box[row=" + next[0] + "][col=" + (next[1]) + "]");
-
-						/* if (value == 15)
-							$(cboxPrev).fadeTo(100, 0.1).fadeTo(200, 1.0); */
-						let first = null;
-						let end = null;
-
-						if (prev[0] < 0 || $(cboxPrev).hasClass("disabled")) {
-							let isvalid = 1;
-							if (!$(cboxNext).hasClass("disabled")) {
-								first = [row, col];
-								//console.log(first);
-
-								for (let indexRow = row; indexRow < totRows; indexRow++) {
-									let now = [indexRow, col];
-									//console.log (now);
-									var cboxNow = $(".box[row=" + now[0] + "][col=" + (now[1]) + "]");
-
-
-
-									if ($(cboxNow).hasClass("disabled") || indexRow == (totRows - 1)) {
-										if (now[0] > 0) {
-											if (indexRow == (totRows - 1))
-												end = [now[0], now[1]];
-											else
-												end = [now[0] - 1, now[1]];
-
-											//$(".box[row=" + end[0] + "][col=" + (end[1] ) + "]").addClass("yellow");
-											if (first[0] != end[0])
-												arrVert.push([first, end, parseInt(value)]);
-											return true;
-											break;
-										}
-
-									}
-
-								}
-
-							}
-						}
-
-						//	console.log(prev[0]);
-						//Move vertically
-
-
-					}
-
-
-				});
-
-				/* console.log(arrVert); */
-
-				$("#vfdef input").remove();
-
-				$(arrVert).each(function(index, obj) {
-					$("#vfdef").append("<input placeholder='" + obj[2] + "' data-number='" + obj[2] + "' class='vInput ' type='text' data-value='" + obj[0][0] + "," + obj[0][1] + "," + obj[1][0] + "," + obj[1][1] + "'>");
-				});
-
-				tinysort('#vfdef>input', {
-					selector: 'input',
-					attr: 'data-number'
-				});
-
-
-
-			}
-
-
-			function manDef() {
-				$("#fdef input").hide();
-
-				$(".box[bh=1]").each(function() {
-					var col = ($(this).attr("col"));
-					var row = ($(this).attr("row"));
-					var number = $(this).parent().find(".number").text();
-					//console.log(number);
-					var nameInput = "h_" + number;
-					//	console.log(nameInput);
-
-
-					if (number>0)
-					{
-						if ($("#fdef").find("input[name=" + nameInput + "]").length == 0) {
-							$("#fdef").append("<input placeholder='" +  number + "' row='" + row + "' col='" + col + "' type='text' name='" + nameInput + "' />");
-						} else {
-							$("#fdef").find("input[name=" + nameInput + "]").attr("col", col);
-							$("#fdef").find("input[name=" + nameInput + "]").attr("row", row);
-						}
-
-						$("#fdef").find("input[name=" + nameInput + "]").show();
-					}
-
-				});
-
-				tinysort('#fdef>input', {
-					selector: 'input',
-					attr: 'row'
-				});
-
-			}
-
-
-
-			$(".wr_box .box").on("keyup", function(event) {
-				this.value = "";
-				//$(this).parent().addClass("horiz");
-				
-
-
-				event.preventDefault();
-				this.value = String.fromCharCode(event.which);
-
-				$(this).parent().next().find("input").focus();
-
-
-				$(this).parent().nextAll().each(function(index, val) {
-					if ($(this).find(".disabled").length > 0) return false;
-					if ($(this).hasClass("nl") || $(this).find(".disabled").length > 0) return false;;
-
-				//	$(val).addClass("horiz");
-				});
-				//.find("input").css("background-color","red");
-
-			});
-
-
-
-			$(".wr_box").on("mouseenter", function() {
-
-				$(this).find(".actions").css("visibility", "visible");
-
-			});
-			$(".wr_box").on("mouseleave", function() {
-
-				$(this).find(".actions").css("visibility", "hidden");
-
-			});
-
-
-			$(".actions").on("click",
-				function(event) {
-					$(this).parent().find("input").toggleClass("disabled");
-					$(this).attr("bh", 0).attr("bv", 0);
-					numberize();
-				});
-
-				$("body").on("focusin", ".box", function(arg) {
-
-					$(".wr_box input").removeClass ("selHoriz selVert");
-
-				});
-		});
-	</script>
-
-	<style>
-		.selHoriz {
-			background-color: #add9e4;
-		}
-
-		.maincont{
-			display: flex;
-		width: 100%;
-		max-width: 80vw;
-		flex-direction: row;
-		margin: 0 auto;
-
-		}
-		.selVert {
-			background: linear-gradient(to bottom, #f7fbfc 0%, #d9edf2 40%, #add9e4 100%);
-		}
-
-
-		#vdef {
-			/* position: absolute; */
-			top: 10vh;
-			left: 2vw;
-			max-height: 250px;
-			overflow: auto;
-		}
-
-		#def {
-
-		/* 	position: fixed; */
-			top: 10vh;
-			right: 2vw;
-
-			max-width: 250px;
-			max-height: 250px;
-			overflow: auto;
-		}
-
-		#vfdef , #fdef{
-			display: flex;
-			align-content: center;
-			flex-direction: column;
-			max-width: 159px;
-		}
-
-		.orange {
-			background-color: #f50 !important;
-		}
-
-		.yellow {
-			background-color: yellowgreen !important;
-		}
-
-		.horiz input {
-			background-color: yellow;
-		}
-
-
-
-		#crossword {
-			text-align: center;
-			margin-right:3px;
-		}
-
-		#crossword .wr_box {
-			position: relative;
-			display: inline-block;
-			margin-bottom: 2px;
-		}
-
-		#crossword .box {
-			width: 30px;
-			height: 30px;
-			text-align: center;
-
-		}
-
-		/*
- #crossword .box:hover +.actions{
- 	visibility: visible;
- }*/
-
-		.cus-disabled {
-			background-color: red;
-		}
-
-		.wr_box .disabled {
-			background-color: black;
-		}
-
-		.ov-disabled {}
-
-		#crossword .actions {
-			visibility: hidden;
-			width: 10px;
-			height: 10px;
-			cursor: pointer;
-			background-color: grey;
-			right: 0px;
-			top: 0px;
-			position: absolute;
-		}
-
-		#crossword .actions:hover {
-			zoom: 2;
-		}
-
-		.number {
-			visibility: visible;
-			width: 10px;
-			height: 10px;
-			cursor: pointer;
-			font-size: 8px;
-			left: 0px;
-			top: 0px;
-			position: absolute;
-
-		}
-
-		.fixed {
-			background: -webkit-linear-gradient(top, #ffffff, #d2d2d2);
-			position: fixed;
-			top: 0px;
-			left: 0px;
-			width: 30%;
-			background-clip: 10px;
-			min-height: 200px;
-			background-color: red;
-			z-index: 2;
-			transition: opacity 300ms ease-out !important;
-
-		}
-
-		body {
-			background: orange;
-			background: linear-gradient(top, #fb0, #f50);
-			background: -moz-linear-gradient(top, #fb0, #f50);
-			background: -webkit-linear-gradient(top, #ffffff, #d2d2d2);
-			background: -o-linear-gradient(top, #fb0, #f50);
-			background: -ms-linear-gradient(top, #fb0, #f50);
-		}
-
-
-		div {
-
-			animation: fontIncrease 2s 1;
-		}
-
-
-		@keyframes hiddenMenu {}
-
-		@keyframes fontIncrease {
-			0% {
-				font-size: 10px;
-				opacity: 0.4;
-			}
-
-			30% {
-				font-size: 15px;
-			}
-
-			100% {
-				font-size: 20px;
-				opacity: 1;
-			}
-		}
-
-		.wr_box input {
-/*     padding:2px;
-    width:100%;
-    margin:0 -1px 0 -4px;
-    float:left;
-    clear:both */
-}
-	</style>
 </body>
 
 </html>
