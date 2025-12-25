@@ -293,7 +293,7 @@ function manDef() {
 }
 
 $(document).ready(function () {
-    $("body").on("change","[name='color']", function () {
+    $("body").on("change", "[name='color']", function () {
 
         var color = $(this).val();
         var style = '.box.disabled { background-color: ' + color + '!important; }';
@@ -348,28 +348,27 @@ $(document).ready(function () {
 
 
 
-var times = 0 ;
-    $("body").on("click", ".wr_box .box" , function (event) {
+    var times = 0;
+    $("body").on("click", ".wr_box .box", function (event) {
         let datav = $(this).attr("data-v");
         let datah = $(this).attr("data-h");
         times++;
-        if (times==2)
-        {
-            times= 0 ;
+        if (times == 2) {
+            times = 0;
             dir = !dir;
         }
 
         $(".box").removeClass("genSel");
-        if (dir)
+        if (dir) {
             var cboxNow = $(".box[data-v=" + datav + "]").addClass("genSel");
-        else
+        }
+        else {
             var cboxNow = $(".box[data-h=" + datah + "]").addClass("genSel");
-
-
+        }
     });
 
 
-    $("body").on("focus",".wr_box .box" , function (event) {
+    $("body").on("focus", ".wr_box .box", function (event) {
 
         $(".box").removeClass("activeCell");
         $(this).addClass("activeCell");
@@ -377,7 +376,7 @@ var times = 0 ;
 
 
 
-    $("body").on("keyup", ".wr_box .box",  function (event) {
+    $("body").on("keyup", ".wr_box .box", function (event) {
         this.value = "";
         //$(this).parent().addClass("horiz");
 

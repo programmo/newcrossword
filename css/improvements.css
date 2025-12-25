@@ -1,0 +1,83 @@
+/* ===================================
+   MIGLIORAMENTI INTERFACCIA CRUCIVERBA
+   =================================== */
+
+/* Miglioramento cruciverba centrale */
+#crossword {
+    border: 4px solid #2c3e50 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2) !important;
+    overflow: hidden !important;
+}
+
+/* Miglioramento celle del cruciverba */
+#crossword .box {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+#crossword .box:not(.disabled):hover {
+    background-color: #f0f8ff !important;
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+/* Celle selezionate */
+.genSel {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%) !important;
+    font-weight: 700 !important;
+}
+
+/* Cella attiva */
+.activeCell {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%) !important;
+    color: white !important;
+    font-weight: 700 !important;
+    box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5) !important;
+}
+
+/* Numeri nelle celle */
+.number {
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+}
+
+/* Miglioramento layout principale */
+.maincont {
+    gap: 30px !important;
+    padding: 20px !important;
+}
+
+/* Timer */
+#basicUsage {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin: 10px auto;
+    text-align: center;
+    letter-spacing: 2px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Toolbar migliorato */
+#toolbar {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 5px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#toolbar button {
+    transition: all 0.3s ease !important;
+}
+
+#toolbar button:hover {
+    transform: scale(1.1) !important;
+    background-color: #667eea !important;
+    color: white !important;
+}

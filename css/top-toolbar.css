@@ -1,0 +1,222 @@
+/* ===================================
+   TOP TOOLBAR - HORIZONTAL LAYOUT
+   =================================== */
+
+/* Main container for top toolbar */
+#topToolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 12px 20px;
+    gap: 15px;
+}
+
+/* Timer section */
+#topToolbar #basicUsage {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Toolbar buttons container */
+#topToolbar #toolbar {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: auto !important;
+    float: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#topToolbar #toolbar button {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    min-width: 40px !important;
+    width: auto !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin: 0 !important;
+}
+
+#topToolbar #toolbar button:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#topToolbar #toolbar button:active {
+    transform: translateY(0);
+}
+
+#topToolbar #toolbar .divider {
+    width: 1px !important;
+    height: 30px !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    margin: 0 4px !important;
+    padding: 0 !important;
+    border: none !important;
+}
+
+/* Reveal buttons in toolbar */
+#topToolbar #revealButtons {
+    display: flex;
+    gap: 8px;
+    margin: 0;
+    max-width: none;
+}
+
+#topToolbar .reveal-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+#topToolbar .reveal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#topToolbar .reveal-btn:active {
+    transform: translateY(0);
+}
+
+#topToolbar .reveal-btn i {
+    font-size: 14px;
+}
+
+/* Current clue display in toolbar */
+#topToolbar #currentClueDisplay {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    margin: 0;
+    max-width: 400px;
+    flex: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    min-height: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+#topToolbar #currentClueNumber {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+}
+
+#topToolbar #currentClueText {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Adjust main content to account for fixed toolbar */
+body {
+    padding-top: 80px;
+    /* Space for the toolbar */
+}
+
+.maincont {
+    margin-top: 0;
+}
+
+/* Hide old rows/cols form */
+.row form[name='inputs'],
+.row {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    #topToolbar {
+        padding: 10px 15px;
+        gap: 10px;
+    }
+
+    #topToolbar #currentClueDisplay {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 768px) {
+    #topToolbar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+        gap: 8px;
+    }
+
+    #topToolbar #basicUsage {
+        order: -1;
+        width: 100%;
+    }
+
+    #topToolbar #toolbar {
+        order: 1;
+        justify-content: center;
+    }
+
+    #topToolbar #revealButtons {
+        order: 2;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #topToolbar #currentClueDisplay {
+        order: 3;
+        max-width: none;
+        width: 100%;
+    }
+
+    body {
+        padding-top: 200px;
+        /* More space for stacked toolbar on mobile */
+    }
+}
