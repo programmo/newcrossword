@@ -329,6 +329,22 @@
 			<button id="auto-fill" type="button" data-tooltip="Auto-fill puzzle" onclick="autoFill()">
 				<i class="fa fa-magic fa-fw" aria-hidden="true"></i>
 			</button>
+			<button id="auto-generate" type="button" data-tooltip="Generate 5-word puzzle"
+				onclick="autoGenerateCrossword()">
+				<i class="fa fa-bolt fa-fw" aria-hidden="true"></i>
+			</button>
+
+			<div class="divider"></div>
+
+			<button id="toggle-bg" type="button" data-tooltip="Toggle background mode" onclick="toggleBackgroundMode()">
+				<i class="fa fa-image fa-fw" aria-hidden="true"></i>
+			</button>
+			<button id="next-bg" type="button" data-tooltip="Next background" onclick="nextBackground()">
+				<i class="fa fa-arrow-right fa-fw" aria-hidden="true"></i>
+			</button>
+			<button id="random-bg" type="button" data-tooltip="Random background" onclick="randomBackground()">
+				<i class="fa fa-random fa-fw" aria-hidden="true"></i>
+			</button>
 		</div>
 
 		<!-- Reveal Buttons -->
@@ -399,6 +415,9 @@
 	<script src="js/files.js"></script>
 	<script src="js/clue-display.js"></script>
 	<script src="js/click-override.js"></script>
+	<script src="js/auto-generate.js"></script>
+	<script src="js/backgrounds.js"></script>
+	<script src="js/mobile-responsive.js"></script>
 
 </body>
 

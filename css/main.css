@@ -115,14 +115,17 @@
     display: table;
     margin: 0 auto;
     box-sizing: content-box;
-
-
+    /* Prevent cells from wrapping */
+    white-space: nowrap;
 }
 
 #crossword .wr_box {
     position: relative;
     display: inline-block;
     margin-bottom: 0px;
+    white-space: normal;
+    /* Allow text inside to wrap */
+    vertical-align: top;
 }
 
 #crossword .box {
@@ -297,17 +300,47 @@ body {
         width: 100%;
         flex-direction: column;
         margin: 0 auto;
-        align-items: baseline;
-        justify-content: center;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: visible;
     }
 
+    /* Crossword container - scrollable in both directions */
+    #crosswordContainer {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: auto;
+        overflow-y: visible;
+        -webkit-overflow-scrolling: touch;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+
+    #crossword {
+        /* Keep nowrap to prevent cell wrapping */
+        white-space: nowrap !important;
+        margin: 0 auto;
+        /* NO transform/scale - let it scroll naturally */
+        transform: none !important;
+        display: inline-block;
+    }
+
+    /* Keep boxes small on mobile */
     #crossword .box {
-        width: calc(100vw /var(--cols) - 3vw);
-
-        height: calc(100vw / var(--cols) - 3vw);
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 10px !important;
     }
 
+    #crossword .wr_box {
+        width: 20px !important;
+        height: 20px !important;
+    }
 
+    .number {
+        font-size: 6px !important;
+    }
 }
 
 #toolbar {
@@ -317,7 +350,9 @@ body {
     padding: 0;
     margin-right: 6px;
     float: left;
-}/* Titoli delle sezioni definizioni */
+}
+
+/* Titoli delle sezioni definizioni */
 .def-title {
     color: white;
     font-size: 16px;
